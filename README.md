@@ -17,3 +17,5 @@ Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://
 - Add an infinite scroll to the details container to save on memory when fetching details.
 - Caching the filter results to improve performance when fetching details (using state management).
 - Add loading animation when fetching details.
+- Add error message handling when fetching details.
+- Add empty list message when no details are found.
