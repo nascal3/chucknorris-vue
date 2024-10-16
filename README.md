@@ -16,3 +16,4 @@ Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://
 - Make the categories filter to allow more than one selection.
 - Add an infinite scroll to the details container to save on memory when fetching details.
 - Caching the filter results to improve performance when fetching details.
+- Add loading animation when fetching details.
