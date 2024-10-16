@@ -38,6 +38,7 @@ onMounted(async () => {
 .filters {
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
    .filter {
      margin: 10px;
      background-color: aliceblue;
