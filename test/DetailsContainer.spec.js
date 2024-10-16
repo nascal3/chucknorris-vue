@@ -1,60 +1,44 @@
-// Component.spec.js
-import { mount } from '@vue/test-utils';
-import { nextTick } from 'vue';
-import http from "../middleware/HttpController.js";
-import Details from "../src/components/Details.vue";
-import * as jest from "node/test.js";
-import DetailsContainer from "../src/components/DetailsContainer.vue";
+import { shallowMount } from '@vue/test-utils'
+import DetailsContainer from '../src/components/DetailsContainer.vue'
+import http from '../middleware/HttpController.js'
+import Details from '../src/components/Details.vue'
 
+jest.mock('../middleware/HttpController.js')
 
-jest.mock('./Details.vue', () => ({
-    name: 'Details',
-    template: '<div></div>',
-}));
+describe('DetailsContainer.vue', () => {
+    it('renders an empty list initially', () => {
+        const wrapper = shallowMount(DetailsContainer)
+        expect(wrapper.findAllComponents(Details.vue).length).toBe(0)
+    })
 
+    it('fetches details and renders them when categoryName prop changes', async () => {
+        const categoryName = 'test-category'
+        const mockData = [{ id: 1, name: 'Detail 1' }]
 
-jest.mock("../../middleware/HttpController.js", () => ({
-    get: jest.fn(),
-}));
+        http.get.mockResolvedValueOnce({ status: 200, data: mockData })
 
-describe('MyComponent', () => {
-    let wrapper;
+        const wrapper = shallowMount(DetailsContainer, {
+            props: { categoryName },
+        })
 
-    beforeEach(() => {
-        wrapper = mount(DetailsContainer, {
-            props: {
-                categoryName: 'Test Category',
-            },
-        });
-    });
+        await wrapper.vm.$nextTick()
 
-    afterEach(() => {
-        jest.clearAllMocks(); // Clear mocks after each test
-    });
+        expect(wrapper.findAllComponents(Details.vue).length).toBe(1)
+        expect(wrapper.findAllComponents(Details.vue).at(0).props('details')).toEqual(mockData[0])
+    })
 
-    it('should initialize with empty details', () => {
-        expect(wrapper.vm.details).toEqual({ result: [] });
-    });
+    it('handles errors during data fetch and logs them', async () => {
+        const categoryName = 'error-category'
+        const errorMessage = 'Network error'
 
-    it('should watch for categoryName prop and fetch details', async () => {
-        const mockResponse = { data: { result: [{ id: 1, name: 'Detail 1' }] }, status: 200 };
-        http.get.mockResolvedValueOnce(mockResponse);
+        http.get.mockRejectedValueOnce(new Error(errorMessage))
 
-        // Wait for the initial fetch
-        await nextTick();
+        const wrapper = shallowMount(DetailsContainer, {
+            props: { categoryName },
+        })
 
-        expect(http.get).toHaveBeenCalledWith('/search?query=Test Category');
-        expect(wrapper.vm.details).toEqual(mockResponse.data);
-    });
-
-    it('should render Details component for each detail fetched', async () => {
-        const mockResponse = { data: { result: [{ id: 1, name: 'Detail 1' }, { id: 2, name: 'Detail 2' }] }, status: 200 };
-        http.get.mockResolvedValueOnce(mockResponse);
-
-        await wrapper.setProps({ categoryName: 'Test Category' });
-        await nextTick();
-
-        const detailComponents = wrapper.findAllComponents(Details);
-        expect(detailComponents).toHaveLength(2); // There should be two Details components rendered
-    });
-});
+        await wrapper.vm.$nextTick()
+        expect(console.error).toHaveBeenCalledWith(`Failed to fetch details: ${errorMessage}`)
+        expect(wrapper.findAllComponents(Details.vue).length).toBe(0)
+    })
+})
