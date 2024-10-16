@@ -17,9 +17,8 @@ const props = defineProps({
 <style scoped lang="scss">
 .card {
   background-color: lightgrey;
-  min-width: 500px;
+  max-width: 500px;
   min-height: 300px;
   margin: 10px;
 }
-
 </style>

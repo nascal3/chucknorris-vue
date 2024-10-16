@@ -45,5 +45,6 @@ watch(
 .container {
   display: flex;
   flex-wrap: wrap;
+  align-content: center;
 }
 </style>
