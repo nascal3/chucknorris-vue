@@ -5,20 +5,19 @@ const props = defineProps({
     type: Object
   }
 })
-debugger
 
 </script>
 
 <template>
   <div class="card">
-    {{details}}
+    {{props.details}}
   </div>
 </template>
 
 <style scoped lang="scss">
 .card {
   background-color: lightgrey;
-  min-width: 400px;
+  min-width: 500px;
   min-height: 300px;
   margin: 10px;
 }

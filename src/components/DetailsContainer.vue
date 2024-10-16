@@ -1,34 +1,44 @@
 <script setup>
-import {onMounted, ref} from "vue";
+import { computed, onMounted, ref, watch } from "vue";
+import http from "../../middleware/HttpController.js";
 import Details from "./Details.vue";
 
-
 const props = defineProps({
-  categoryName: String
+  categoryName: String,
 })
 
-const details = ref([])
+const details = ref({ result: [] })
 
 const getDetails = async (categoryName) => {
   try {
-    const response = await fetch(`https://api.chucknorris.io/jokes/search?query=${'food'}`);
-    if (response.ok) {
-      details.value = await response.json();
+    const response = await http.get(`/search?query=${categoryName}`)
+    if (response.status === 200) {
+      details.value = response.data
     }
   } catch (err) {
-    console.error(`Failed to fetch users: ${err.message}`)
+    console.error(`Failed to fetch details: ${err.message}`)
   }
-}
+};
 
-
-onMounted(getDetails(props.categoryName))
+watch(
+    () => props.categoryName,
+    async (newVal) => {
+      if (newVal) {
+        await getDetails(newVal)
+      }
+    },
+    { immediate: true }
+);
 </script>
 
 <template>
   <div class="container">
-    <Details v-for="detail in details.result" :key="detail.id" :detals="detail"/>
+    <Details
+        v-for="detail in details.result || []"
+        :key="detail.id"
+        :details="detail"
+    />
   </div>
-
 </template>
 
 <style lang="scss" scoped>
@@ -36,5 +46,4 @@ onMounted(getDetails(props.categoryName))
   display: flex;
   flex-wrap: wrap;
 }
-
 </style>
